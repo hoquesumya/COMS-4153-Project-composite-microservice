@@ -135,7 +135,7 @@ class CompositeResource:
                 print(f"Client error occurred: {client_err}")
                 return JSONResponse(
                     content={"error": f"Client error occurred: {client_err}"},
-                    status_code=500
+                    status_code=400
                 )
             except Exception as err:
                 print(f"An unexpected error occurred: {err}")
@@ -163,14 +163,14 @@ class CompositeResource:
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
             return JSONResponse(
-                    content={"error": f"Server error occurred:"},
-                    status_code=500
+                    content={"error": response.json()},
+                    status_code=response.status_code
                 )
         except RequestException as req_err:
             print(f"Request error occurred: {req_err}")
             return JSONResponse(
-                    content={"error": f"request error occurred:"},
-                    status_code=400
+                    content={"error": response.json()},
+                    status_code=response.status_code
                 )
         except Exception as err:
              print(f"An unexpected error occurred: {err}")
@@ -242,6 +242,10 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
+            return JSONResponse(
+                content={"error": response.json()},
+                status_code=response.status_code
+            )
             print(f"HTTP error occurred: {http_err}")
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
@@ -270,7 +274,7 @@ class CompositeResource:
             
             print(f"HTTP error occurred: {http_err}")
             return JSONResponse(
-                content={"error": "an error occurred"},
+                content={"error": response.json()},
                 status_code=response.status_code
             )
         
@@ -295,40 +299,57 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                content={"error": response.json()},
+                status_code=response.status_code
+            )
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
              print(f"An unexpected error occurred: {err}")
     
     #.....staring thr course enrollment service....
-    def get_course(self, user_id:str, token :str):
-        url = f"{self.course_config}/users/{user_id}/courses"
+    def get_course(self, student_id:str, token :str):
+        url = f"{self.course_config}/users/{student_id}/courses"
         try:
-            response = requests.get(url, token)
+            print("staring getting courses", token)
+            headers = {
+                "token": token
+            }
+
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
-            return response
+            return response.json()
+
         except requests.exceptions.Timeout:
             print("The request timed out!")
             return JSONResponse(
                 content={"error": "The request timed out"},
-                status_code=408
+                status_code=response.status_code
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                content={"error": response.json()},
+                status_code=response.status_code
+            )
+
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
              print(f"An unexpected error occurred: {err}")
        
-        print(self.course_config, user_id)
+        print(self.course_config, student_id)
     
     def get_all_students_per_course(self, course_code: str, token: str):
         url = f"{self.course_config}/course/{course_code}/students"
         try:
-            response = requests.get(url, token)
+            headers = {
+                "token":token
+            }
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
-            return response
+            return response.json()
         except requests.exceptions.Timeout:
             print("The request timed out!")
             return JSONResponse(
@@ -337,6 +358,10 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": response.json()},
+                    status_code=response.status_code
+            )   
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
@@ -359,7 +384,7 @@ class CompositeResource:
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
             return JSONResponse(
-                    content={"error": f"Server error occurred:"},
+                    content={"error": response.json()},
                     status_code=response.status_code
                 )
 

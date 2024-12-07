@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Form, Body
+from fastapi import APIRouter, HTTPException, Form, Body, Header
 from app.services.ChatServices import Chat
 from app.services.StudGroup import StudyGroup
 from app.services.UserServices import UserService
@@ -42,11 +42,14 @@ def get_all_users(params:dict):
     return user.get_all_users(params=params)
 
 #.................. Course Enrollment Service............
-@router.get("/StudyLink/v1/course/{course_code}/students")
-def get_all_students(course_id:str, token: str):
+@router.get("/StudyLink/v1/course/{course_id}/students")
+def get_all_students(course_id:str, token: str = Header(...)):
+    print("staried finding all courses")
     return course.get_all_students(course_id, token)
+
 @router.get("/StudyLink/v1/users/{student_id}/courses")
-def get_allcourse(student_id: str, token: str):
+def get_allcourse(student_id: str, token: str = Header(...)):
+    print("started the request for students course")
     return course.get_all_course(student_id, token)
 # .................Chat Service..................
 
