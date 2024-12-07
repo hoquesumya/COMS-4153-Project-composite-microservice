@@ -52,9 +52,7 @@ class CompositeResource:
             response = requests.post(url, token, timeout=5)
             response.raise_for_status()
             status_code = response.status_code
-            data = response.json()
-            print(self.user_config, user_id)
-            return(status_code, data)
+            return response
         except requests.exceptions.Timeout:
             print("The request timed out!")
             return JSONResponse(
@@ -84,6 +82,10 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
+            return JSONResponse(
+                content={"error": "Something is wrong"},
+                status_code=response.status_code
+            )
             print(f"HTTP error occurred: {http_err}")
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
@@ -342,19 +344,116 @@ class CompositeResource:
 
     #......staring the chat service.....
     def get_chat(self, chat_id:int):
+        url = f"{self.chat_config}/conversations/{chat_id}"
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+            return response
+       
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": f"Server error occurred:"},
+                    status_code=response.status_code
+                )
+
         print(self.chat_config, chat_id)
+
     
     def get_all_chat(self):
-         print(self.chat_config)
+        print(self.chat_config)
+        url = f"{self.chat_config}/conversations/"
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+            return response
+       
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": f"Server error occurred:"},
+                    status_code=response.status_code
+                )
+
     #this will be the event driven
     def post_chat(self, conversation:dict):
         print(self.chat_config)
+        url = f"{self.chat_config}/conversations/"
+        try:
+            response = requests.post(url, json=conversation, timeout=5)
+            response.raise_for_status()
+            return response
+       
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": response.json()},
+                    status_code=response.status_code
+            )
+
 
     def delete_chat(self,chat_id:int):
+        url = f"{self.chat_config}/conversations/{chat_id}"
+        try:
+            response = requests.delete(url, timeout=5)
+            response.raise_for_status()
+            return response
+       
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": response.json()},
+                    status_code=response.status_code
+            )
+
         print(self.chat_config, chat_id)
+
     
     def update_chat(self, chat_id, conversation: dict):
-        print(self.chat_config, chat_id)
+        url = f"{self.chat_config}/conversations/{chat_id}"
+        try:
+            print("conversation is:", conversation)
+            response = requests.put(url, json=conversation, timeout=5)
+            response.raise_for_status()
+            return response
+       
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                    content={"error": response.json()},
+                    status_code=response.status_code
+            )
+
         
     
 

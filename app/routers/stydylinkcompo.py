@@ -52,32 +52,28 @@ def get_allcourse(student_id: str, token: str):
 
 @router.post("/StudyLink/v1/{user_id}/conversations", tags=["conversations"])
 def create_conversation(user_id: str, conversation: dict):
-    """
-    Create a new conversation for a user by user ID
-    """
-    chat.post_chat(user_id, conversation)
+   
+    return chat.post_chat(user_id, conversation)
 
 @router.put("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])
 def update_conversation(user_id: str, conversation_id: int, conversation: dict):
     """
     Update a conversation by conversation ID for a user by user ID.
     """
-    chat.update_chat(user_id, conversation_id, conversation)
+    return chat.update_chat(user_id, conversation_id, conversation)
 
 @router.get("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])
 def get_conversation(user_id: str, conversation_id: int):
-    """
-    Retrieve a conversation by conversation ID for a user by user ID.
-    """
-    chat.get_chat(user_id, conversation_id)
+
+   return chat.get_chat(user_id, conversation_id)
 
 @router.delete("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])
 def delete_convo(user_id: str, conversation_id: int):
-    chat.delete_chat(user_id, conversation_id)
+    return chat.delete_chat(user_id, conversation_id)
 
 @router.get("/StudyLink/v1/{user_id}/conversations")
 def get_all_chat(user_id: str):
-    chat.get_all_chat(user_id)
+    return chat.get_all_chat(user_id)
 #......................StudyGroup.....................
 @router.get("/StudyLink/v1/studyGroup/{group_id}", tags = ["studyGroup"])
 def get_studyGroup( group_id:str):

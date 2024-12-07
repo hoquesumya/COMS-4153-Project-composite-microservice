@@ -6,7 +6,6 @@ class UserService:
         self.compo_resource = service.get_service("CompositeResource")
     
     def get_user(self, user_id:str):
-       
             print("calling the function ")
             return self.compo_resource.get_user(user_id)
     
@@ -14,7 +13,7 @@ class UserService:
         return self.compo_resource.get_all_users(params)
 
     def post_user(self, user_id: str, token:str):
-        self.compo_resource.post_user(user_id, token)
+        return self.compo_resource.post_user(user_id, token)
 
     def delete_user(self, user_id: str):
-        self.compo_resource.delete_user(user_id)
+        return self.compo_resource.delete_user(user_id)
