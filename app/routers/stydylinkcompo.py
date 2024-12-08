@@ -53,7 +53,7 @@ def get_allcourse(student_id: str, token: str = Header(...)):
 
 @router.post("/StudyLink/v1/{user_id}/conversations", tags=["conversations"])
 def create_conversation(user_id: str, conversation: dict, google_user:dict):
-   
+    print("started chat")
     return chat.post_chat(user_id, conversation, google_user)
 
 @router.put("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])

@@ -31,7 +31,7 @@ class CompositeResource:
             response.raise_for_status()
             
             print(self.user_config, user_id)
-            return response
+            return (response.json(), response.status_code)
         except requests.exceptions.Timeout:
             print("The request timed out!")
             return JSONResponse(
@@ -49,10 +49,7 @@ class CompositeResource:
              response_data = response.text
             print(f"HTTP errors occurred: {http_err}", response.status_code, response_data)
 
-            return JSONResponse(
-                    content={"error": response_data},
-                    status_code=response.status_code
-            )
+            return (response_data, response.status_code)
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
@@ -404,7 +401,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response
+            return response.json()
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -428,7 +425,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response
+            return response.json()
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -450,7 +447,7 @@ class CompositeResource:
         try:
             response = requests.post(url, json=conversation, timeout=5)
             response.raise_for_status()
-            return response
+            return (response.json(), response.status_code)
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -460,10 +457,7 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            return JSONResponse(
-                    content={"error": response.json()},
-                    status_code=response.status_code
-            )
+            return (response.json(), response.status_code)
 
 
     def delete_chat(self,chat_id:int):
@@ -471,20 +465,26 @@ class CompositeResource:
         try:
             response = requests.delete(url, timeout=5)
             response.raise_for_status()
-            return response
+            return (response.json(), response.status_code)
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
-            return JSONResponse(
-                content={"error": "The request timed out"},
-                status_code=408
-            )
+            error_details = {"error": "Unknown error"}
+            
+            return error_details, 408
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            return JSONResponse(
-                    content={"error": response.json()},
-                    status_code=response.status_code
-            )
+            try:
+                # Try to extract error details from the response if available
+                error_content = response.json()
+                return (error_content, response.status_code)
+            except Exception:
+                # Fallback if response content is not JSON
+                error_content = {"message": "Unknown error"}
+            return {
+                "error": error_content,
+                "status_code": response.status_code,
+            }
 
         print(self.chat_config, chat_id)
 
@@ -492,23 +492,28 @@ class CompositeResource:
     def update_chat(self, chat_id, conversation: dict):
         url = f"{self.chat_config}/conversations/{chat_id}"
         try:
-            print("conversation is:", conversation)
+           # print("conversation is:", conversation)
             response = requests.put(url, json=conversation, timeout=5)
             response.raise_for_status()
-            return response
+            print(response.json(),response)
+            return (response.json(), response.status_code)
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
-            return JSONResponse(
-                content={"error": "The request timed out"},
-                status_code=408
-            )
+          
+            error_details = {"error": "Unknown error"}
+            
+            return error_details, 408
+
+          
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
-            return JSONResponse(
-                    content={"error": response.json()},
-                    status_code=response.status_code
-            )
+            try:
+                error_details = response.json()
+            except ValueError:
+                error_details = {"error": "Unknown error"}
+            
+            return error_details, response.status_code
 
         
     
