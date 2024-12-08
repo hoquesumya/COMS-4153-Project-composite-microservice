@@ -35,9 +35,9 @@ def delete_user_profile(user_id: str, google_user:dict):
    return  user.delete_user(user_id, google_user)
 
 @router.get("/StudyLink/v1/users/", tags=["users"])
-def get_all_users(params:dict):
+def get_all_users(google_user:dict):
 
-    return user.get_all_users(params=params)
+    return user.get_all_users(google_user)
 
 #.................. Course Enrollment Service............
 @router.get("/StudyLink/v1/course/{course_id}/students")
