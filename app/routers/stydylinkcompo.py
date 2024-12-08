@@ -87,14 +87,15 @@ def get_all_group():
 @router.post("/StudyLink/v1/{user_id}/studyGroup/", tags = ["studyGroup"])
 async def post_studyGroup(user_id: str, group_data:dict, google_user:dict):
     print("statting the creating the group")
-    await group.create_group(user_id,group_data, google_user)
+    res = await group.create_group(user_id,group_data, google_user)
+    return res
 
 @router.delete("/StudyLink/v1/{user_id}/studyGroup/{group_id}", tags = ["studyGroup"])
 def get_studyGroup(user_id: str, group_id: int,google_user:dict ):
-    group.delete_group(user_id, group_id,google_user)
+    return group.delete_group(user_id, group_id,google_user)
 
 @router.put("/StudyLink/v1/{user_id}/studyGroup/{group_id}", tags = ["studyGroup"])
 def update_study_group( user_id: str, group_id: int, update_data:dict, google_user:dict):
     print("update data", update_data)
-    group.update_group(user_id, group_id, update_data, google_user)
+    return group.update_group(user_id, group_id, update_data, google_user)
 

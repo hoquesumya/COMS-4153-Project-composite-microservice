@@ -8,10 +8,18 @@ class StudyGroup:
         self.compo_resource = service.get_service("CompositeResource")
     
     def get_group(self, group_id:str):
-        return self.compo_resource.get_group(group_id)
+        response_data, status_code = self.compo_resource.get_group(group_id)
+        if status_code == 200:
+            return response_data
+        else:
+           raise HTTPException(status_code=status_code, detail=response_data)
     
     def get_all_group(self):
-        return self.compo_resource.get_all_group()
+        response_data, status_code = self.compo_resource.get_all_group()
+        if status_code == 200:
+            return response_data
+        else:
+           raise HTTPException(status_code=status_code, detail=response_data)
     #synchronoulsy runnnalble data
     
     async def create_group(self,  user_id:str, group_data:dict, google_user:dict):
@@ -21,66 +29,63 @@ class StudyGroup:
             self.compo_resource.create_group(group_data)
             )
         print(response_post)
-        if isinstance(response_get, JSONResponse):
-            response_get_status = response_get.status_code
-        else:
-            response_get_status = response_get.status  # If using aiohttp, check status
-
-        if isinstance(response_post, JSONResponse):
-            response_post_status = response_post.status_code
-        else:
-            response_post_status = response_post.status  # If using aiohttp, check status
-    
+        data, response_get_status =  response_get
+        
+        response_data, response_post_status=  response_post
+       
         print(f"GET Response Status: {response_get_status}")
         print(f"POST Response Status: {response_post_status}")
     
     # Now handle the conditions based on the status codes
         if response_get_status == 200 and response_post_status != 200:
-            return  response_post
-        elif response_get_status == 200 and response_post_status == 200:
-            return {"message": "POST is successful!"}
+            raise HTTPException(status_code=response_post_status, detail=response_data)
+       
+        elif response_get_status == 200 and response_post_status == 200 or response_post_status == 201:
+            return {"message": response_data}
+        
         elif response_get_status != 200 and response_post_status == 200:
-            response_post_json = await response_post.json() if hasattr(response_post, 'json') else response_post.json()
-            group_id = response_post_json.get("group_id")
-            response_delete = await self.compo_resource.delete_group_async(group_id)
-            if isinstance(response_get, JSONResponse):
-                response_delte_status = response_delete.status_code
-            if response_delte_status != 200:
-                raise HTTPException(status_code=400, detail="rollback failed, perform the delete one more time")
+           
+            group_id = response_data.get("group_id")
+            response_delete_data, status_delete = await self.compo_resource.delete_group_async(group_id)
+
+            if status_delete != 200:
+                raise HTTPException(status_code=status_delete, detail=f"rollback failed,{response_delete_data}")
             
-            raise HTTPException(status_code=400, detail="GET request failed, rollback succedded")
-        elif response_get_status != 200 and response_post_status != 200:
+            raise HTTPException(status_code=400, detail="GET request failed, rollback succedded, Post Suspended")
+        
+        elif response_get_status != 200 and (response_post_status != 200  and response_post_status !=201):
             print("Both GET and POST requests failed.")
-        raise HTTPException(status_code=400, detail="POST request failed, try again")
+            raise HTTPException(status_code=response_post_status, detail=response_data)
 
-
-       # self.compo_resource.get_user(user_id)
-       #self.compo_resource.create_group(group_data)
 
     def delete_group(self, user_id:str, group_id: int, google_user:dict):
         #synchronous --> Structural coding pattern
-        response = self.compo_resource.get_user(user_id, google_user)
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="can't delete, user does not exist")
-        response = self.compo_resource.delete_group(group_id)
+        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
+       
+        if  status_code != 200:
+            raise HTTPException(status_code=status_code, detail=response_data_get)
+        
+        response_data, status_code = self.compo_resource.delete_group(group_id)
 
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="can't delete")
+        if  status_code != 200:
+            raise HTTPException(status_code=400, detail=response_data)
         else:
-            return response
+            return response_data
     
     def update_group(self,user_id:str, group_id:int, update_data:dict, google_user:dict):
-        response = self.compo_resource.get_user(user_id, google_user)
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="can't update, user does not exis")
+       
+        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
+       
+        if  status_code != 200:
+            raise HTTPException(status_code=status_code, detail=response_data_get)
+    
         print("update data1", update_data)
-        response_up = self.compo_resource.update_group(group_id, update_data)
-        print(response_up)
-        if response_up.status_code != 200:
-            error_details = response_up.body.decode("utf-8")
-           # error_details = {"error": response_up.json()}
-            raise HTTPException(status_code=response_up.status_code, detail=error_details)
+        response_data, status_code = self.compo_resource.update_group(group_id, update_data)
+       
+        if status_code != 200:
+           
+            raise HTTPException(status_code=status_code, detail=response_data)
         else:
-            return response_up
+            return response_data
         
         

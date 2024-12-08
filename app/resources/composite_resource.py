@@ -153,7 +153,8 @@ class CompositeResource:
             try:
                 response = await session.get(url, json=google_user)
                 response.raise_for_status()  # This will raise an error for 4xx/5xx status codes
-                return response
+                response_data = await response.json()
+                return response_data, response.status
             except TimeoutError:
                 return JSONResponse(
                 content={"error": "The request timed out"},
@@ -161,10 +162,8 @@ class CompositeResource:
             )
             except aiohttp.ClientError as client_err:
                 print(f"Client error occurred: {client_err}")
-                return JSONResponse(
-                    content={"error": f"Client error occurred: {client_err}"},
-                    status_code=400
-                )
+                return (response.json(), response.status)
+              
             except Exception as err:
                 print(f"An unexpected error occurred: {err}")
                 return JSONResponse(
@@ -180,7 +179,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response
+            return response.json(), response.status_code
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -190,6 +189,7 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return (response.json(), response.status_code)
             return JSONResponse(
                     content={"error": response.json()},
                     status_code=response.status_code
@@ -209,8 +209,10 @@ class CompositeResource:
         async with aiohttp.ClientSession() as client:
             try:
                 response = await client.post(url, json=group_data, timeout=5)
-                response.raise_for_status()  # This will raise an error for 4xx/5xx status codes
-                return response
+                response.raise_for_status()
+                  # This will raise an error for 4xx/5xx status codes
+                response_data = await response.json()
+                return (response_data, response.status)
             
             except TimeoutError:
                 return JSONResponse(
@@ -218,17 +220,16 @@ class CompositeResource:
                 status_code=408
             )
             except aiohttp.ClientError as client_err:
-                print(f"Client error occurred: {client_err}")
-                return JSONResponse(
-                    content={"error": f"Client error occurred: {client_err}"},
-                    status_code=500
-                )
+                try:
+                    error_data = await client_err.response.json()
+                except Exception:
+                    error_data = {"error": f"Client error occurred: {client_err.status}"}
+                return (error_data, client_err.status)
+                
             except Exception as err:
                 print(f"An unexpected error occurred: {err}")
-                return JSONResponse(
-                    content={"error": f"An unexpected error occurred: {err}"},
-                    status_code=500
-                )
+                return (response_data, response.status)
+    
     
     async def delete_group_async(self, group_id:int):
         url = f"{self.study_config}/study-group/{group_id}"
@@ -236,7 +237,8 @@ class CompositeResource:
             try:
                 response = await client.delete(url, timeout=15)
                 response.raise_for_status()  # This will raise an error for 4xx/5xx status codes
-                return response
+                response_data = await response.json()
+                return (response_data, response.status)
             
             except TimeoutError:
                 return JSONResponse(
@@ -245,10 +247,11 @@ class CompositeResource:
             )
             except aiohttp.ClientError as client_err:
                 print(f"Client error occurred: {client_err}")
-                return JSONResponse(
-                    content={"error": f"Client error occurred: {client_err}"},
-                    status_code=500
-                )
+                try:
+                    error_data = await client_err.response.json()
+                except Exception:
+                    error_data = {"error": f"Client error occurred: {client_err.status}"}
+                return (error_data,  client_err.status)
             except Exception as err:
                 print(f"An unexpected error occurred: {err}")
                 return JSONResponse(
@@ -261,7 +264,7 @@ class CompositeResource:
         try:
             response = requests.delete(url, timeout=5)
             response.raise_for_status()
-            return response
+            return (response.json(), response.status_code)
         
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -270,6 +273,7 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
+            return (response.json(), response.status_code)
             return JSONResponse(
                 content={"error": response.json()},
                 status_code=response.status_code
@@ -289,7 +293,7 @@ class CompositeResource:
             response = requests.put(url, json=update_data, timeout=15)
             print(response.json())
             response.raise_for_status()
-            return response
+            return (response.json(), response.status_code)
         
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -301,6 +305,7 @@ class CompositeResource:
         except HTTPError as http_err:
             
             print(f"HTTP error occurred: {http_err}")
+            return (response.json(), response.status_code)
             return JSONResponse(
                 content={"error": response.json()},
                 status_code=response.status_code
@@ -318,7 +323,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response
+            return (response.json(), response.status_code)
         
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -327,6 +332,7 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
+            return (response.json(), response.status_code)
             return JSONResponse(
                 content={"error": response.json()},
                 status_code=response.status_code
