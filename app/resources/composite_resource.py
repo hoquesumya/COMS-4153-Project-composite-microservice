@@ -23,11 +23,11 @@ class CompositeResource:
         self.course_config = self.config.get_couuse_config()
     
     #this will perform the rest call
-    def get_user(self, user_id:str):
+    def get_user(self, user_id:str, google:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
         try:
-            print("calling get user")
-            response = requests.get(url, timeout=10)
+            print("calling get user",google)
+            response = requests.get(url, json = google, timeout=10)
             response.raise_for_status()
             
             print(self.user_config, user_id)
@@ -40,6 +40,19 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            try:
+            # Try to parse the response as JSON
+                response_data = response.json()  # This is from the external service
+                print(f"External service response (JSON): {response_data}")
+            except ValueError:
+            # If it's not JSON, log the raw text response
+             response_data = response.text
+            print(f"HTTP errors occurred: {http_err}", response.status_code, response_data)
+
+            return JSONResponse(
+                    content={"error": response_data},
+                    status_code=response.status_code
+            )
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
@@ -47,11 +60,12 @@ class CompositeResource:
 
     
     def post_user(self, user_id: str, token:str):
-        url = f"{self.user_config}/users/{user_id}/profile"
+        url = f"{self.user_config}/users/{user_id}/profile?token={token}"
         try:
-            response = requests.post(url, token, timeout=5)
+            response = requests.post(url,timeout=5)
             response.raise_for_status()
             status_code = response.status_code
+            #print(status_code, response.json())
             return response
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -60,7 +74,20 @@ class CompositeResource:
                 status_code=408
             )
         except HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
+            try:
+            # Try to parse the response as JSON
+                response_data = response.json()  # This is from the external service
+                print(f"External service response (JSON): {response_data}")
+            except ValueError:
+            # If it's not JSON, log the raw text response
+             response_data = response.text
+            print(f"HTTP errors occurred: {http_err}", response.status_code, response_data)
+
+            return JSONResponse(
+                    content={"error": response_data},
+                    status_code=response.status_code
+            )
+          
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
@@ -83,7 +110,7 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             return JSONResponse(
-                content={"error": "Something is wrong"},
+                content={"error": response.json()},
                 status_code=response.status_code
             )
             print(f"HTTP error occurred: {http_err}")
@@ -93,15 +120,15 @@ class CompositeResource:
              print(f"An unexpected error occurred: {err}")
 
    
-    def delete_user(self, user_id: str):
+    def delete_user(self, user_id: str, google_user:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
         try:
-            response = requests.delete(url, timeout=5)
+            print("start deleting")
+            response = requests.delete(url, json=google_user, timeout=5)
             response.raise_for_status()
             status_code = response.status_code
             data = response.json()
-            print(self.user_config, user_id)
-            return(status_code, data)
+            return response
         except requests.exceptions.Timeout:
             print("The request timed out!")
             return JSONResponse(
@@ -110,6 +137,10 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return JSONResponse(
+                content={"error": response.json()},
+                status_code=response.status_code
+            )
         except RequestException as req_err:
              print(f"Request error occurred: {req_err}")
         except Exception as err:
@@ -118,12 +149,12 @@ class CompositeResource:
         print(self, user_id, self.user_config)
     
     
-    async def get_user_sync_internal(self, user_id:str):
+    async def get_user_sync_internal(self, user_id:str, google_user:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
 
         async with aiohttp.ClientSession() as session:
             try:
-                response = await session.get(url)
+                response = await session.get(url, json=google_user)
                 response.raise_for_status()  # This will raise an error for 4xx/5xx status codes
                 return response
             except TimeoutError:

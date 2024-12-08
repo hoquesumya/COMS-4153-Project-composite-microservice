@@ -14,10 +14,10 @@ class StudyGroup:
         return self.compo_resource.get_all_group()
     #synchronoulsy runnnalble data
     
-    async def create_group(self,  user_id:str, group_data:dict):
+    async def create_group(self,  user_id:str, group_data:dict, google_user:dict):
         print("staring the create group ops")
         response_get, response_post = await asyncio.gather(
-            self.compo_resource.get_user_sync_internal(user_id), 
+            self.compo_resource.get_user_sync_internal(user_id, google_user), 
             self.compo_resource.create_group(group_data)
             )
         print(response_post)
@@ -57,9 +57,9 @@ class StudyGroup:
        # self.compo_resource.get_user(user_id)
        #self.compo_resource.create_group(group_data)
 
-    def delete_group(self, user_id:str, group_id: int):
+    def delete_group(self, user_id:str, group_id: int, google_user:dict):
         #synchronous --> Structural coding pattern
-        response = self.compo_resource.get_user(user_id)
+        response = self.compo_resource.get_user(user_id, google_user)
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="can't delete, user does not exist")
         response = self.compo_resource.delete_group(group_id)
@@ -69,8 +69,8 @@ class StudyGroup:
         else:
             return response
     
-    def update_group(self,user_id:str, group_id:int, update_data:dict):
-        response = self.compo_resource.get_user(user_id)
+    def update_group(self,user_id:str, group_id:int, update_data:dict, google_user:dict):
+        response = self.compo_resource.get_user(user_id, google_user)
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="can't update, user does not exis")
         print("update data1", update_data)
