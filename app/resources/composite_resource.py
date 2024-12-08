@@ -401,7 +401,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response.json()
+            return (response.json(), response.status_code)
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -411,6 +411,7 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return (response.json(), response.status_code)
             return JSONResponse(
                     content={"error": response.json()},
                     status_code=response.status_code
@@ -425,7 +426,7 @@ class CompositeResource:
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
-            return response.json()
+            return (response.json(), response.status_code)
        
         except requests.exceptions.Timeout:
             print("The request timed out!")
@@ -435,6 +436,7 @@ class CompositeResource:
             )
         except HTTPError as http_err:
             print(f"HTTP error occurred: {http_err}")
+            return (response.json(), response.status_code)
             return JSONResponse(
                     content={"error": f"Server error occurred:"},
                     status_code=response.status_code

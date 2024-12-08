@@ -8,7 +8,11 @@ class Chat:
         self.compo_resource = service.get_service("CompositeResource")
     
     def get_chat(self, chat_id:int):
-        return self.compo_resource.get_chat(chat_id)
+        data, status_code =  self.compo_resource.get_chat(chat_id)
+        if status_code == 200:
+            return data
+        else:
+            raise HTTPException(status_code=status_code, detail=data)
     
     def post_chat(self, user_id: str, conversation: dict, google_user:dict):
 
@@ -54,4 +58,7 @@ class Chat:
             return JSONResponse(content={"detail": response_put_data}, status_code=200)
     
     def get_all_chat(self):
-       return self.compo_resource.get_all_chat()
+       data, status_code = self.compo_resource.get_all_chat()
+       if status_code == 200:
+           return data
+       raise HTTPException(status_code=status_code, detail=data)
