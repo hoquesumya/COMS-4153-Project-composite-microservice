@@ -23,6 +23,34 @@ class CompositeResource:
         self.course_config = self.config.get_couuse_config()
     
     #this will perform the rest call
+    def get_user_login(self, user_id:str, google:dict, jwt_payload:dict):
+        url = f"{self.user_config}/users/{user_id}/login"
+        try:
+            payload = { "google_user": google, "jwt_payload": jwt_payload }
+            print("calling get user",google)
+            response = requests.get(url, json=payload, timeout=10)
+            response.raise_for_status()
+            
+            print(self.user_config, user_id)
+            return (response.json(), response.status_code)
+        except requests.exceptions.Timeout:
+            print("The request timed out!")
+            return JSONResponse(
+                content={"error": "The request timed out"},
+                status_code=408
+            )
+        except HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+            try:
+            # Try to parse the response as JSON
+                response_data = response.json()  # This is from the external service
+                print(f"External service response (JSON): {response_data}")
+            except ValueError:
+            # If it's not JSON, log the raw text response
+             response_data = response.text
+            print(f"HTTP errors occurred: {http_err}", response.status_code, response_data)
+
+
     
     def get_user(self, user_id:str, google:dict, jwt_payload:dict):
         url = f"{self.user_config}/users/{user_id}/profile"

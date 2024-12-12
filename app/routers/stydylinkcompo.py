@@ -12,6 +12,9 @@ user = UserService()
 course = CourseEnrolment()
 
 # User Profile Service
+@router.get("/StudyLink/v1/users/{user_id}/login", tags=["users"])
+def get_user_login(user_id:str, google_user:dict, jwt_payload:dict):
+    return user.get_user_login(user_id, google_user, jwt_payload)
 @router.get("/StudyLink/v1/users/{user_id}/profile", tags=["users"])
 def get_user_profile(user_id: str, google_user:dict, jwt_payload:dict):
     """
