@@ -6,16 +6,16 @@ class UserService:
         service = ServiceFactory()
         self.compo_resource = service.get_service("CompositeResource")
     
-    def get_user(self, user_id:str, google_user:dict):
-            print("calling the function ")
-            data, status = self.compo_resource.get_user(user_id, google_user)
+    def get_user(self, user_id:str, google_user:dict, jwt_payload:dict):
+            print("calling the function for use ")
+            data, status = self.compo_resource.get_user(user_id, google_user, jwt_payload)
             if status == 200:
                 return data
             else:
                 raise HTTPException(status_code=status, detail=data)
 
-    def get_all_users(self, google_user:dict):
-        data, status = self.compo_resource.get_all_users(google_user)
+    def get_all_users(self, google_user:dict,jwt_payload:dict):
+        data, status = self.compo_resource.get_all_users(google_user, jwt_payload)
         if status == 200:
              return data
         else:
@@ -29,8 +29,8 @@ class UserService:
         else:
             raise HTTPException(status_code=status, detail=data)
 
-    def delete_user(self, user_id: str, google_user:dict):
-        data, status = self.compo_resource.delete_user(user_id, google_user)
+    def delete_user(self, user_id: str, google_user:dict, jwt_payload:dict):
+        data, status = self.compo_resource.delete_user(user_id, google_user, jwt_payload)
         if status == 200 or status == 201:
             return data
         else:

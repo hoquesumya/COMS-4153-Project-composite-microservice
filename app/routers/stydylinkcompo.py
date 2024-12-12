@@ -13,12 +13,12 @@ course = CourseEnrolment()
 
 # User Profile Service
 @router.get("/StudyLink/v1/users/{user_id}/profile", tags=["users"])
-def get_user_profile(user_id: str, google_user:dict):
+def get_user_profile(user_id: str, google_user:dict, jwt_payload:dict):
     """
     Retrieve the profile of a user by user ID.
     """
     print("calling the fuction")
-    return user.get_user(user_id, google_user)
+    return user.get_user(user_id, google_user, jwt_payload)
    
 
 #need to fix 
@@ -30,14 +30,14 @@ def post_user_profile(user_id: str, token: str):
     return user.post_user(user_id, token)
 
 @router.delete("/StudyLink/v1/users/{user_id}/profile", tags=["users"])
-def delete_user_profile(user_id: str, google_user:dict):
+def delete_user_profile(user_id: str, google_user:dict, jwt_payload:dict):
 
-   return  user.delete_user(user_id, google_user)
+   return  user.delete_user(user_id, google_user, jwt_payload)
 
 @router.get("/StudyLink/v1/users/", tags=["users"])
-def get_all_users(google_user:dict):
+def get_all_users(google_user:dict, jwt_payload:dict):
 
-    return user.get_all_users(google_user)
+    return user.get_all_users(google_user, jwt_payload)
 
 #.................. Course Enrollment Service............
 @router.get("/StudyLink/v1/course/{course_id}/students")
@@ -52,16 +52,16 @@ def get_allcourse(student_id: str, token: str = Header(...)):
 # .................Chat Service..................
 
 @router.post("/StudyLink/v1/{user_id}/conversations", tags=["conversations"])
-def create_conversation(user_id: str, conversation: dict, google_user:dict):
+def create_conversation(user_id: str, conversation: dict, google_user:dict, jwt_payload:dict):
     print("started chat")
-    return chat.post_chat(user_id, conversation, google_user)
+    return chat.post_chat(user_id, conversation, google_user, jwt_payload)
 
 @router.put("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])
-def update_conversation(user_id: str, conversation_id: int, conversation: dict, google_user:dict):
+def update_conversation(user_id: str, conversation_id: int, conversation: dict, google_user:dict, jwt_payload:dict):
     """
     Update a conversation by conversation ID for a user by user ID.
     """
-    return chat.update_chat(user_id, conversation_id, conversation, google_user)
+    return chat.update_chat(user_id, conversation_id, conversation, google_user,  jwt_payload)
 
 @router.get("/StudyLink/v1/conversations/{conversation_id}", tags=["conversations"])
 def get_conversation(conversation_id: int):
@@ -69,8 +69,8 @@ def get_conversation(conversation_id: int):
    return chat.get_chat(conversation_id)
 
 @router.delete("/StudyLink/v1/{user_id}/conversations/{conversation_id}", tags=["conversations"])
-def delete_convo(user_id: str, conversation_id: int, google_user:dict):
-    return chat.delete_chat(user_id, conversation_id, google_user)
+def delete_convo(user_id: str, conversation_id: int, google_user:dict, jwt_payload:dict):
+    return chat.delete_chat(user_id, conversation_id, google_user, jwt_payload)
 
 @router.get("/StudyLink/v1/conversations")
 def get_all_chat():
@@ -85,17 +85,17 @@ def get_all_group():
     return group.get_all_group()
 
 @router.post("/StudyLink/v1/{user_id}/studyGroup/", tags = ["studyGroup"])
-async def post_studyGroup(user_id: str, group_data:dict, google_user:dict):
+async def post_studyGroup(user_id: str, group_data:dict, google_user:dict, jwt_payload:dict):
     print("statting the creating the group")
-    res = await group.create_group(user_id,group_data, google_user)
+    res = await group.create_group(user_id,group_data, google_user, jwt_payload)
     return res
 
 @router.delete("/StudyLink/v1/{user_id}/studyGroup/{group_id}", tags = ["studyGroup"])
-def get_studyGroup(user_id: str, group_id: int,google_user:dict ):
-    return group.delete_group(user_id, group_id,google_user)
+def get_studyGroup(user_id: str, group_id: int,google_user:dict,jwt_payload:dict ):
+    return group.delete_group(user_id, group_id,google_user, jwt_payload)
 
 @router.put("/StudyLink/v1/{user_id}/studyGroup/{group_id}", tags = ["studyGroup"])
-def update_study_group( user_id: str, group_id: int, update_data:dict, google_user:dict):
+def update_study_group( user_id: str, group_id: int, update_data:dict, google_user:dict, jwt_payload:dict):
     print("update data", update_data)
-    return group.update_group(user_id, group_id, update_data, google_user)
+    return group.update_group(user_id, group_id, update_data, google_user, jwt_payload=jwt_payload)
 

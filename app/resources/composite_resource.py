@@ -23,11 +23,13 @@ class CompositeResource:
         self.course_config = self.config.get_couuse_config()
     
     #this will perform the rest call
-    def get_user(self, user_id:str, google:dict):
+    
+    def get_user(self, user_id:str, google:dict, jwt_payload:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
         try:
+            payload = { "google_user": google, "jwt_payload": jwt_payload }
             print("calling get user",google)
-            response = requests.get(url, json = google, timeout=10)
+            response = requests.get(url, json=payload, timeout=10)
             response.raise_for_status()
             
             print(self.user_config, user_id)
@@ -80,17 +82,17 @@ class CompositeResource:
              response_data = response.text
             print(f"HTTP errors occurred: {http_err}", response.status_code, response_data)
             return (response_data,response.status_code)
-        except RequestException as req_err:
-             print(f"Request error occurred: {req_err}")
         except Exception as err:
-             print(f"An unexpected error occurred: {err}")
+            return (response_data,response.status_code)
+            print(f"An unexpected error occurred: {err}")
       
-        print(self, user_id, self.user_config)
 
-    def get_all_users(self, params:dict):
+
+    def get_all_users(self, google_user:dict, jwt_payload:dict):
         url = f"{self.user_config}/users/"
         try:
-            response = requests.get(url, json=params, timeout=5)
+            payload = { "google_user": google_user, "jwt_payload": jwt_payload }
+            response = requests.get(url, json=payload, timeout=5)
             response.raise_for_status()
             return (response.json(), response.status_code)
         
@@ -113,7 +115,7 @@ class CompositeResource:
              print(f"An unexpected error occurred: {err}")
 
    
-    def delete_user(self, user_id: str, google_user:dict):
+    def delete_user(self, user_id: str, google_user:dict, jwt:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
         try:
             print("start deleting")
@@ -138,12 +140,13 @@ class CompositeResource:
         print(self, user_id, self.user_config)
     
     
-    async def get_user_sync_internal(self, user_id:str, google_user:dict):
+    async def get_user_sync_internal(self, user_id:str, google_user:dict, jwt_payload:dict):
         url = f"{self.user_config}/users/{user_id}/profile"
 
         async with aiohttp.ClientSession() as session:
             try:
-                response = await session.get(url, json=google_user)
+                payload = { "google_user": google_user, "jwt_payload": jwt_payload }
+                response = await session.get(url, json=payload)
                 response.raise_for_status()  # This will raise an error for 4xx/5xx status codes
                 response_data = await response.json()
                 return response_data, response.status
@@ -154,7 +157,8 @@ class CompositeResource:
             )
             except aiohttp.ClientError as client_err:
                 print(f"Client error occurred: {client_err}")
-                return (response.json(), response.status)
+                error_data = await client_err.response.json()
+                return (error_data, client_err.status)
               
             except Exception as err:
                 print(f"An unexpected error occurred: {err}")

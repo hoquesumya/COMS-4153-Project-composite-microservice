@@ -2,6 +2,7 @@ from app.services.service_factory import ServiceFactory
 
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
+from .pub_sub import Publisher, Subscriber
 class Chat:
     def __init__(self) -> None:
         service = ServiceFactory()
@@ -14,26 +15,51 @@ class Chat:
         else:
             raise HTTPException(status_code=status_code, detail=data)
     
-    def post_chat(self, user_id: str, conversation: dict, google_user:dict):
+    def post_chat(self, user_id: str, conversation: dict, google_user:dict, jwt_payload:dict):
 
         print("started post service chat")
-        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
-       
-        if  status_code != 200:
+        pub = Publisher()
+        user_sub = Subscriber("user_sub")
+        chat_sub = Subscriber("chat_sub")
+        compo_sub =  Subscriber("chat_response")
+        
+        pub.subscribe(user_sub, "get_user")
+        pub.subscribe(chat_sub, "get_chat")
+        pub.subscribe(compo_sub, "chat_response")
+
+        pub.publish("Get User", "get_user", [user_id, google_user, jwt_payload])
+        user_stat, response_data_get, status_code = user_sub.receive()
+
+        #response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
+        if not user_stat:
             raise HTTPException(status_code=status_code, detail=response_data_get)
        
+        #if  status_code != 200:
+            #raise HTTPException(status_code=status_code, detail=response_data_get)
+       
         #this one works perfectly
+        print("successful user")
+        pub.publish("Get chat", "get_chat", [conversation])
+        chat_stat, response_post, status_code = chat_sub.receive()
+        if status_code != 200:
+             raise HTTPException(status_code=status_code, detail=response_post)
+        else:
+            return JSONResponse(content={"detail": response_post}, status_code=200)
+
+        '''
+       
         response_post, status_code = self.compo_resource.post_chat(conversation)
         if status_code != 200:
             raise HTTPException(status_code=status_code, detail=response_post)
         else:
             print("chat created successfully")
             return JSONResponse(content={"detail": response_post}, status_code=200)
+        '''
 
        
-    def delete_chat(self, user_id: str, chat_id:int, google_user:dict):
+    def delete_chat(self, user_id: str, chat_id:int, google_user:dict, jwt_payload:dict):
         
-        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
+        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user,jwt_payload)
        
         if  status_code != 200:
             raise HTTPException(status_code=status_code, detail=response_data_get)
@@ -46,8 +72,8 @@ class Chat:
         else:
             return JSONResponse(content={"detail": response_delete_data}, status_code=200)
     
-    def update_chat(self, user_id:str, chat_id:int, conversation:dict, google_user:dict):
-        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user)
+    def update_chat(self, user_id:str, chat_id:int, conversation:dict, google_user:dict, jwt_payload:dict):
+        response_data_get, status_code = self.compo_resource.get_user(user_id,google_user, jwt_payload)
         if  status_code != 200:
             raise HTTPException(status_code=status_code, detail=response_data_get)
         response_put_data, status_code = self.compo_resource.update_chat(chat_id, conversation)

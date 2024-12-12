@@ -1,0 +1,7 @@
+runtime: python312
+entrypoint: gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app
+env_variables:
+  USER_MICRO : "http://127.0.0.1:8002"
+  STUDY_MICRO : "http://127.0.0.1:8001"
+  CHAT_MICRO : "http://127.0.0.1:8001"
+  COURSE_MICRO : "http://127.0.0.1:8001"
