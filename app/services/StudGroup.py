@@ -22,7 +22,7 @@ class StudyGroup:
            raise HTTPException(status_code=status_code, detail=response_data)
     #synchronoulsy runnnalble data
     
-    async def create_group(self,  user_id:str, group_data:dict, google_user:dict, jwt_payload:dict):
+    async def create_group(self,  user_id:str, group_data:dict, google_user:str, jwt_payload:str):
         print("staring the create group ops")
         response_get, response_post = await asyncio.gather(
             self.compo_resource.get_user_sync_internal(user_id, google_user, jwt_payload), 
@@ -58,7 +58,7 @@ class StudyGroup:
             raise HTTPException(status_code=response_post_status, detail=response_data)
 
 
-    def delete_group(self, user_id:str, group_id: int, google_user:dict, jwt_payload:dict):
+    def delete_group(self, user_id:str, group_id: int, google_user:str, jwt_payload:str):
         #synchronous --> Structural coding pattern
         response_data_get, status_code = self.compo_resource.get_user(user_id,google_user, jwt_payload)
        
@@ -72,7 +72,7 @@ class StudyGroup:
         else:
             return response_data
     
-    def update_group(self,user_id:str, group_id:int, update_data:dict, google_user:dict, jwt_payload:dict):
+    def update_group(self,user_id:str, group_id:int, update_data:dict, google_user:str, jwt_payload:str):
        
         response_data_get, status_code = self.compo_resource.get_user(user_id,google_user, jwt_payload)
        
