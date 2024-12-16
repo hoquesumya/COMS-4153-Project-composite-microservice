@@ -24,6 +24,14 @@ Two get requests to retrieve a student's courses and find students of the course
 - Get /StudyLink/v1/conversations → Get all the conversations
 
 
-
-
-
+## To create the google Workflow follow the below link:
+    https://cloud.google.com/workflows/docs/
+## To Deploy app in PaaS
+    1. install gcloud
+    2. create app.yaml 
+    3. gcloud app deploy
+    4. gcloud app browse
+    5. gcloud app logs tail -s default  
+## Note:
+    Will have more rigouros way of handling the event-driven composite architecture
+    Google Pub-Sub (https://cloud.google.com/pubsub#documentation), FaaS()
