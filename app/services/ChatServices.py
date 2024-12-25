@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from .pub_sub import Publisher, Subscriber
 from dotenv import load_dotenv
 import os, time, json
+from .pub_sub_google import Publisher, Subscriber
 
 
 class Chat:
@@ -83,6 +84,8 @@ class Chat:
     def post_chat(self, user_id: str, conversation: dict, google_user:str, jwt_payload:str):
 
         print("started post service chat")
+        '''
+        
         pub = Publisher()
         user_sub = Subscriber("user_sub")
         chat_sub = Subscriber("chat_sub")
@@ -112,6 +115,8 @@ class Chat:
             return JSONResponse(content={"detail": response_post}, status_code=200)
 
         '''
+        '''
+        
        
         response_post, status_code = self.compo_resource.post_chat(conversation)
         if status_code != 200:
@@ -121,7 +126,19 @@ class Chat:
             return JSONResponse(content={"detail": response_post}, status_code=200)
         '''
 
-       
+        http_data = {
+            "user_id":user_id,
+            "google_user": google_user,
+            "jwt": jwt_payload,
+            "conversation": conversation
+        }
+        pub = Publisher()
+        pub.publish_message(http_data)
+        sub = Subscriber()
+        sub.subscribe()
+        response, status = sub.get_response()
+        return JSONResponse(content={"detail": response}, status_code=status)
+
     def delete_chat(self, user_id: str, chat_id:int, google_user:str, jwt_payload:str):
         
         response_data_get, status_code = self.compo_resource.get_user(user_id,google_user,jwt_payload)

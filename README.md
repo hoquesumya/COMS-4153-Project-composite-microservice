@@ -17,13 +17,16 @@
 Two get requests to retrieve a student's courses and find students of the course
 
 ## Chat Service
-- Post /StudyLink/v1/{user_id}/conversations → post a chat; has choreography pattern to call the user service and the chat service 
+- Post /StudyLink/v1/{user_id}/conversations → post a chat; --> Has choreography pattern to call the user and chat service. Used FaaS to act as the subscriber + publisher. FaaS is triggered wby the cloud pub-sub events.
+    - ![Pub Sub Implementations!](images/pub-sub.png)
+
 - Delete "/StudyLink/v1/{user_id}/conversations/{conversation_id}", → Has google workflow to call the user and chat services
 - Put /StudyLink/v1/conversations/{conversation_id} → Synchronous call between the user and chat service
 - Get StudyLink/v1/{user_id}/conversations/{conversation_id} → Retrieves conversation
 - Get /StudyLink/v1/conversations → Get all the conversations
 
-
+## Run App
+uvicorn app.main:app --reload --port 8000
 ## To create the google Workflow follow the below link:
     https://cloud.google.com/workflows/docs/
 ## To Deploy app in PaaS
@@ -35,3 +38,8 @@ Two get requests to retrieve a student's courses and find students of the course
 ## Note:
     Will have more rigouros way of handling the event-driven composite architecture
     Google Pub-Sub (https://cloud.google.com/pubsub#documentation), FaaS()
+## FaaS Deployment
+Follow this: https://cloud.google.com/functions/docs/tutorials/pubsub to trigeer the FaaS from cloud event e.g, pub-sub
+ gcloud functions deploy python-pubsub-function --gen2 --runtime=python312 --region=? --source=app/pub-sub/ --entry-point=subscribe --trigger-topic=?
+ To read the log: gcloud functions logs read  --gen2 --region=? --limit=5 python-pubsub-function
+

@@ -18,4 +18,5 @@ aiohttp
 requests
 google-cloud-workflows
 google-cloud-logging==3.11.3
+google-cloud-pubsub
 

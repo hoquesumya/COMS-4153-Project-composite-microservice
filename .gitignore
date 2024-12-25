@@ -1,2 +1,5 @@
 myenv/
 __pycache__
+.env
+.env.yaml
+command.sh
