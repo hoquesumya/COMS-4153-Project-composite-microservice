@@ -18,7 +18,7 @@ Two get requests to retrieve a student's courses and find students of the course
 
 ## Chat Service
 - Post /StudyLink/v1/{user_id}/conversations → post a chat; --> Has choreography pattern to call the user and chat service. Used FaaS to act as the subscriber + publisher. FaaS is triggered wby the cloud pub-sub events.
-    - ![Pub Sub Implementations!](/imgaes/pub-sub.png)
+    - ![Pub Sub Implementations!](/images/pub-sub.png)
 
 - Delete "/StudyLink/v1/{user_id}/conversations/{conversation_id}", → Has google workflow to call the user and chat services
 - Put /StudyLink/v1/conversations/{conversation_id} → Synchronous call between the user and chat service
