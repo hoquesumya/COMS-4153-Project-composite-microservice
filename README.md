@@ -35,11 +35,11 @@ uvicorn app.main:app --reload --port 8000
     3. gcloud app deploy
     4. gcloud app browse
     5. gcloud app logs tail -s default  
-## Note:
-    Will have more rigouros way of handling the event-driven composite architecture
-    Google Pub-Sub (https://cloud.google.com/pubsub#documentation), FaaS()
+
 ## FaaS Deployment
 Follow this: https://cloud.google.com/functions/docs/tutorials/pubsub to trigeer the FaaS from cloud event e.g, pub-sub
  gcloud functions deploy python-pubsub-function --gen2 --runtime=python312 --region=? --source=app/pub-sub/ --entry-point=subscribe --trigger-topic=?
  To read the log: gcloud functions logs read  --gen2 --region=? --limit=5 python-pubsub-function
 
+## MiddleWares
+The middleware handles logging with a correlation ID and forwards logs to Google Cloud Logging; similarly, it validates JWT tokens.
