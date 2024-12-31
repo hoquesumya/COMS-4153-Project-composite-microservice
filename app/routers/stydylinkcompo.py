@@ -6,12 +6,12 @@ from app.services.CourseEnrollment import CourseEnrolment
 import asyncio
 from typing import Any, Dict, List, Union
 
-import json
 router = APIRouter()
 group = StudyGroup()
 chat =  Chat()
 user = UserService()
 course = CourseEnrolment()
+
 
 # User Profile Service
 @router.get("/StudyLink/v1/users/{user_id}/login", tags=["users"])
